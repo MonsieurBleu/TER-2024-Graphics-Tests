@@ -8,6 +8,8 @@
 #include <thread>
 #include <fstream>
 
+#include <Helpers.hpp>
+
 Game::Game(GLFWwindow *window) : App(window) {}
 
 void Game::init(int paramSample)
@@ -211,42 +213,42 @@ void Game::mainloop()
     ModelRef floor = newModel(GameGlobals::PBR);
     floor->loadFromFolder("ressources/models/ground/");
 
-    int gridSize = 10;
-    int gridScale = 10;
-    for (int i = -gridSize; i < gridSize; i++)
-        for (int j = -gridSize; j < gridSize; j++)
-        {
-            ModelRef f = floor->copyWithSharedMesh();
-            f->state
-                .scaleScalar(gridScale)
-                .setPosition(vec3(i * gridScale * 1.80, 0, j * gridScale * 1.80));
-            scene.add(f);
-        }
+    // int gridSize = 10;
+    // int gridScale = 10;
+    // for (int i = -gridSize; i < gridSize; i++)
+    //     for (int j = -gridSize; j < gridSize; j++)
+    //     {
+    //         ModelRef f = floor->copyWithSharedMesh();
+    //         f->state
+    //             .scaleScalar(gridScale)
+    //             .setPosition(vec3(i * gridScale * 1.80, 0, j * gridScale * 1.80));
+    //         scene.add(f);
+    //     }
 
-    int forestSize = 32;
-    float treeScale = 0.5;
+    // int forestSize = 32;
+    // float treeScale = 0.5;
 
-    ModelRef leaves = newModel(GameGlobals::PBRstencil);
-    leaves->loadFromFolder("ressources/models/fantasy tree/");
-    leaves->noBackFaceCulling = true;
+    // ModelRef leaves = newModel(GameGlobals::PBRstencil);
+    // leaves->loadFromFolder("ressources/models/fantasy tree/");
+    // leaves->noBackFaceCulling = true;
 
-    ModelRef trunk = newModel(GameGlobals::PBR);
-    trunk->loadFromFolder("ressources/models/fantasy tree/trunk/");
+    // ModelRef trunk = newModel(GameGlobals::PBR);
+    // trunk->loadFromFolder("ressources/models/fantasy tree/trunk/");
 
-    for (int i = -forestSize; i < forestSize; i++)
-        for (int j = -forestSize; j < forestSize; j++)
-        {
-            ObjectGroupRef tree = newObjectGroup();
-            tree->add(trunk->copyWithSharedMesh());
-            ModelRef l = leaves->copyWithSharedMesh();
-            l->noBackFaceCulling = true;
-            tree->add(l);
-            tree->state
-                .scaleScalar(treeScale)
-                .setPosition(vec3(i * treeScale * 40, 0, j * treeScale * 40));
+    // for (int i = -forestSize; i < forestSize; i++)
+    //     for (int j = -forestSize; j < forestSize; j++)
+    //     {
+    //         ObjectGroupRef tree = newObjectGroup();
+    //         tree->add(trunk->copyWithSharedMesh());
+    //         ModelRef l = leaves->copyWithSharedMesh();
+    //         l->noBackFaceCulling = true;
+    //         tree->add(l);
+    //         tree->state
+    //             .scaleScalar(treeScale)
+    //             .setPosition(vec3(i * treeScale * 40, 0, j * treeScale * 40));
 
-            scene.add(tree);
-        }
+    //         scene.add(tree);
+    //     }
 
     /* Instanced Mesh example */
     // InstancedModelRef trunk = newInstancedModel();
@@ -302,30 +304,15 @@ void Game::mainloop()
     scene2D.updateAllObjects();
     fuiBatch->batch();
 
+    SphereHelperRef test(new  SphereHelper(vec3(1, 0, 0), 1.f));
+    
+    scene.add(test);
+
+
     state = AppState::run;
     std::thread physicsThreads(&Game::physicsLoop, this);
 
-    /* Music ! 
-    AudioFile music1;
-    music1.loadOGG("ressources/musics/Endless Space by GeorgeTantchev.ogg");
-
-    AudioSource musicSource;
-    musicSource
-        .generate()
-        .setBuffer(music1.getHandle())
-        .setPosition(vec3(0, 0, 3))
-        .play();
-
-    // alSourcei(musicSource.getHandle(), AL_SOURCE_RELATIVE, AL_TRUE);
-    alSource3f(musicSource.getHandle(), AL_DIRECTION, 0.0, 0.0, 0.0);
-    */
-
-    ModelRef lanterne = newModel(GameGlobals::PBR);
-    lanterne->loadFromFolder("ressources/models/lantern/");
-    lanterne->state
-        .scaleScalar(0.01)
-        .setPosition(vec3(2, 2, 0));
-    scene.add(lanterne);
+    glLineWidth(3.0);
 
     /* Main Loop */
     while (state != AppState::quit)
