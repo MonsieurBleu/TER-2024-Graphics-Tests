@@ -1,3 +1,7 @@
 [submodule "Engine"]
 	path = Engine
 	url = https://github.com/MonsieurBleu/Game-Engine
+
+[submodule "shader"]
+	path = build/shader
+	url = https://github.com/MonsieurBleu/VESL--Vulpine-Engine-Shader-Library
