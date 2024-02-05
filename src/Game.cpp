@@ -208,24 +208,24 @@ void Game::mainloop()
     skybox->depthWrite = true;
     skybox->state.frustumCulled = false;
     skybox->state.scaleScalar(1E6);
-    scene.add(skybox);
+    // scene.add(skybox);
 
     ModelRef floor = newModel(GameGlobals::PBR);
-    floor->loadFromFolder("ressources/models/ground/");
+    floor->loadFromFolder("ressources/models/cube/");
 
-    // int gridSize = 10;
-    // int gridScale = 10;
-    // for (int i = -gridSize; i < gridSize; i++)
-    //     for (int j = -gridSize; j < gridSize; j++)
-    //     {
-    //         ModelRef f = floor->copyWithSharedMesh();
-    //         f->state
-    //             .scaleScalar(gridScale)
-    //             .setPosition(vec3(i * gridScale * 1.80, 0, j * gridScale * 1.80));
-    //         scene.add(f);
-    //     }
+    int gridSize = 32;
+    int gridScale = 1;
+    for (int i = -gridSize; i < gridSize; i++)
+        for (int j = -gridSize; j < gridSize; j++)
+        {
+            ModelRef f = floor->copyWithSharedMesh();
+            f->state
+                .scaleScalar(gridScale)
+                .setPosition(vec3(i * gridScale * 3.0, -2.0, j * gridScale * 3.0));
+            scene.add(f);
+        }
 
-    // int forestSize = 32;
+    // int forestSize = 16;
     // float treeScale = 0.5;
 
     // ModelRef leaves = newModel(GameGlobals::PBRstencil);
@@ -245,7 +245,7 @@ void Game::mainloop()
     //         tree->add(l);
     //         tree->state
     //             .scaleScalar(treeScale)
-    //             .setPosition(vec3(i * treeScale * 40, 0, j * treeScale * 40));
+    //             .setPosition(vec3(i * treeScale * 150, 0, j * treeScale * 150));
 
     //         scene.add(tree);
     //     }
