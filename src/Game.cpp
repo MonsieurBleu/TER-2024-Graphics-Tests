@@ -210,20 +210,20 @@ void Game::mainloop()
     skybox->state.scaleScalar(1E6);
     // scene.add(skybox);
 
-    ModelRef floor = newModel(GameGlobals::PBR);
-    floor->loadFromFolder("ressources/models/cube/");
+    // ModelRef floor = newModel(GameGlobals::PBR);
+    // floor->loadFromFolder("ressources/models/cube/");
 
-    int gridSize = 32;
-    int gridScale = 1;
-    for (int i = -gridSize; i < gridSize; i++)
-        for (int j = -gridSize; j < gridSize; j++)
-        {
-            ModelRef f = floor->copyWithSharedMesh();
-            f->state
-                .scaleScalar(gridScale)
-                .setPosition(vec3(i * gridScale * 3.0, -2.0, j * gridScale * 3.0));
-            scene.add(f);
-        }
+    // int gridSize = 32;
+    // int gridScale = 1;
+    // for (int i = -gridSize; i < gridSize; i++)
+    //     for (int j = -gridSize; j < gridSize; j++)
+    //     {
+    //         ModelRef f = floor->copyWithSharedMesh();
+    //         f->state
+    //             .scaleScalar(gridScale)
+    //             .setPosition(vec3(i * gridScale * 3.0, -2.0, j * gridScale * 3.0));
+    //         scene.add(f);
+    //     }
 
     // int forestSize = 16;
     // float treeScale = 0.5;
@@ -305,14 +305,15 @@ void Game::mainloop()
     fuiBatch->batch();
 
     SphereHelperRef test(new  SphereHelper(vec3(1, 0, 0), 1.f));
-    
     scene.add(test);
+
+    scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
 
 
     state = AppState::run;
     std::thread physicsThreads(&Game::physicsLoop, this);
 
-    glLineWidth(3.0);
+    glLineWidth(1.0);
 
     /* Main Loop */
     while (state != AppState::quit)
