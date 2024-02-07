@@ -16,6 +16,8 @@ void Game::init(int paramSample)
 {
     App::init();
 
+    activateMainSceneBindlessTextures();
+
     setIcon("ressources/icon.png");
 
     setController(&spectator);
@@ -65,7 +67,8 @@ void Game::init(int paramSample)
 
     GameGlobals::PBR = MeshMaterial(
         new ShaderProgram(
-            "shader/foward/PBR.frag",
+            // "shader/foward/PBR.frag",
+            "shader/clustered/clusterDebug.frag",
             "shader/foward/basic.vert",
             "",
             globals.standartShaderUniform3D()));
@@ -164,6 +167,13 @@ bool Game::userInput(GLFWKeyInfo input)
             GameGlobals::PBRstencil->reset();
             skyboxMaterial->reset();
             break;
+        
+        case GLFW_KEY_F6:
+            if(helpers->state.hide == ModelStateHideStatus::SHOW)
+                helpers->state.hide = ModelStateHideStatus::HIDE;
+            else
+                helpers->state.hide = ModelStateHideStatus::SHOW;
+            break;
 
         case GLFW_KEY_F8:
             {
@@ -210,22 +220,22 @@ void Game::mainloop()
     skybox->state.scaleScalar(1E6);
     // scene.add(skybox);
 
-    // ModelRef floor = newModel(GameGlobals::PBR);
-    // floor->loadFromFolder("ressources/models/cube/");
+    ModelRef floor = newModel(GameGlobals::PBR);
+    floor->loadFromFolder("ressources/models/cube/");
 
-    // int gridSize = 32;
-    // int gridScale = 1;
-    // for (int i = -gridSize; i < gridSize; i++)
-    //     for (int j = -gridSize; j < gridSize; j++)
-    //     {
-    //         ModelRef f = floor->copyWithSharedMesh();
-    //         f->state
-    //             .scaleScalar(gridScale)
-    //             .setPosition(vec3(i * gridScale * 3.0, -2.0, j * gridScale * 3.0));
-    //         scene.add(f);
-    //     }
+    int gridSize = 5;
+    int gridScale = 12;
+    for (int i = -gridSize; i <= gridSize; i++)
+        for (int j = -gridSize; j <= gridSize; j++)
+        {
+            ModelRef f = floor->copyWithSharedMesh();
+            f->state
+                .scaleScalar(gridScale)
+                .setPosition(vec3(i * gridScale * 3.0, -1.0*gridScale, j * gridScale * 3.0));
+            scene.add(f);
+        }
 
-    // int forestSize = 16;
+    // int forestSize = 14;
     // float treeScale = 0.5;
 
     // ModelRef leaves = newModel(GameGlobals::PBRstencil);
@@ -240,12 +250,12 @@ void Game::mainloop()
     //     {
     //         ObjectGroupRef tree = newObjectGroup();
     //         tree->add(trunk->copyWithSharedMesh());
-    //         ModelRef l = leaves->copyWithSharedMesh();
-    //         l->noBackFaceCulling = true;
-    //         tree->add(l);
+    //         // ModelRef l = leaves->copyWithSharedMesh();
+    //         // l->noBackFaceCulling = true;
+    //         // tree->add(l);
     //         tree->state
     //             .scaleScalar(treeScale)
-    //             .setPosition(vec3(i * treeScale * 150, 0, j * treeScale * 150));
+    //             .setPosition(vec3(i * treeScale * 25, 0, j * treeScale * 25));
 
     //         scene.add(tree);
     //     }
@@ -267,16 +277,34 @@ void Game::mainloop()
     // trunk->updateInstances();
     // scene.add(trunk);
 
-    SceneDirectionalLight sun = newDirectionLight(
-        DirectionLight()
-            .setColor(vec3(143, 107, 71) / vec3(255))
-            .setDirection(normalize(vec3(-1.0, -1.0, 0.0)))
-            .setIntensity(5.0));
+    // SceneDirectionalLight sun = newDirectionLight(
+    //     DirectionLight()
+    //         .setColor(vec3(143, 107, 71) / vec3(255))
+    //         .setDirection(normalize(vec3(-1.0, -1.0, 0.0)))
+    //         .setIntensity(1.0));
 
-    sun->cameraResolution = vec2(2048);
-    sun->shadowCameraSize = vec2(90, 90);
-    sun->activateShadows();
-    scene.add(sun);
+    // sun->cameraResolution = vec2(2048);
+    // sun->shadowCameraSize = vec2(90, 90);
+    // sun->activateShadows();
+    // scene.add(sun);
+
+    helpers = newObjectGroup();
+    int nbLights = MAX_LIGHT_COUNTER;
+    for(int i = 0; i < nbLights; i++)
+    {
+        ScenePointLight l = newPointLight();
+        l->setIntensity(100.f)
+            .setColor(hsv2rgb(vec3((std::rand()%256)/256.0, 1, 1)))
+            .setPosition(vec3(200 - std::rand()%400, -std::rand()%3, 200 - std::rand()%400))
+            .setRadius(10.0);
+        
+        scene.add(l);
+        helpers->add(PointLightHelperRef(new PointLightHelper(l)));
+    }
+    helpers->state.hide = ModelStateHideStatus::HIDE;
+    scene.add(helpers);
+
+    scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
@@ -291,7 +319,7 @@ void Game::mainloop()
     globals.cpuTime.setMenu(menu);
     globals.gpuTime.setMenu(menu);
     globals.fpsLimiter.setMenu(menu);
- 
+
     
 
     // physicsTicks.setMenu(menu);
@@ -304,11 +332,7 @@ void Game::mainloop()
     scene2D.updateAllObjects();
     fuiBatch->batch();
 
-    SphereHelperRef test(new  SphereHelper(vec3(1, 0, 0), 1.f));
-    scene.add(test);
-
-    scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
-
+   
 
     state = AppState::run;
     std::thread physicsThreads(&Game::physicsLoop, this);
@@ -371,7 +395,7 @@ void Game::mainloop()
         /* Final Screen Composition */
         glViewport(0, 0, globals.windowWidth(), globals.windowHeight());
         finalProcessingStage.activate();
-        sun->shadowMap.bindTexture(0, 6);
+        // sun->shadowMap.bindTexture(0, 6);
         screenBuffer2D.bindTexture(0, 7);
         globals.drawFullscreenQuad();
 

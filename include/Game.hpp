@@ -28,6 +28,8 @@ private:
 
     SpectatorController spectator;
 
+    ObjectGroupRef helpers;
+
 public:
     Game(GLFWwindow *window);
     void init(int paramSample);
