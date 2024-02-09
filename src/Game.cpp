@@ -16,7 +16,7 @@ void Game::init(int paramSample)
 {
     App::init();
 
-    activateMainSceneBindlessTextures();
+    // activateMainSceneBindlessTextures();
 
     setIcon("ressources/icon.png");
 
@@ -289,7 +289,7 @@ void Game::mainloop()
     // scene.add(sun);
 
     helpers = newObjectGroup();
-    int nbLights = MAX_LIGHT_COUNTER;
+    int nbLights = 16;
     for(int i = 0; i < nbLights; i++)
     {
         ScenePointLight l = newPointLight();
@@ -301,7 +301,7 @@ void Game::mainloop()
         scene.add(l);
         helpers->add(PointLightHelperRef(new PointLightHelper(l)));
     }
-    helpers->state.hide = ModelStateHideStatus::HIDE;
+    // helpers->state.hide = ModelStateHideStatus::HIDE;
     scene.add(helpers);
 
     scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
