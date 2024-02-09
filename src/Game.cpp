@@ -67,8 +67,8 @@ void Game::init(int paramSample)
 
     GameGlobals::PBR = MeshMaterial(
         new ShaderProgram(
-            // "shader/foward/PBR.frag",
-            "shader/clustered/clusterDebug.frag",
+            "shader/foward/PBR.frag",
+            // "shader/clustered/clusterDebug.frag",
             "shader/foward/basic.vert",
             "",
             globals.standartShaderUniform3D()));
