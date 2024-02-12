@@ -4,6 +4,7 @@
 #include <CompilingOptions.hpp>
 #include <MathsUtils.hpp>
 #include <Audio.hpp>
+#include <Constants.hpp>
 
 #include <thread>
 #include <fstream>
@@ -17,6 +18,7 @@ void Game::init(int paramSample)
     App::init();
 
     // activateMainSceneBindlessTextures();
+    activateMainSceneClusteredLighting(ivec3(16, 9, 24));
 
     setIcon("ressources/icon.png");
 
@@ -223,15 +225,15 @@ void Game::mainloop()
     ModelRef floor = newModel(GameGlobals::PBR);
     floor->loadFromFolder("ressources/models/cube/");
 
-    int gridSize = 5;
+    int gridSize = 7.5;
     int gridScale = 12;
     for (int i = -gridSize; i <= gridSize; i++)
         for (int j = -gridSize; j <= gridSize; j++)
         {
             ModelRef f = floor->copyWithSharedMesh();
             f->state
-                .scaleScalar(gridScale)
-                .setPosition(vec3(i * gridScale * 3.0, -1.0*gridScale, j * gridScale * 3.0));
+                .setScale(vec3(gridScale, 0.25f, gridScale))
+                .setPosition(vec3(i * gridScale * 2.0, -1.0, j * gridScale * 2.0));
             scene.add(f);
         }
 
@@ -288,23 +290,38 @@ void Game::mainloop()
     // sun->activateShadows();
     // scene.add(sun);
 
+    ObjectGroupRef lights = newObjectGroup();
     helpers = newObjectGroup();
-    int nbLights = 16;
+    int nbLights = 1;
     for(int i = 0; i < nbLights; i++)
     {
         ScenePointLight l = newPointLight();
-        l->setIntensity(100.f)
-            .setColor(hsv2rgb(vec3((std::rand()%256)/256.0, 1, 1)))
-            .setPosition(vec3(200 - std::rand()%400, -std::rand()%3, 200 - std::rand()%400))
-            .setRadius(10.0);
-        
-        scene.add(l);
+
+        float phi = (float)(std::rand()%3141592)/(PI);
+        const float maxDist = 300.f;
+        float dist = (float)(std::rand()%(int)1e5)/1e5f;
+        dist = pow(dist, 0.5f)*maxDist;
+
+        l->setIntensity(5.f)
+            .setColor(hsv2rgb(vec3((float)(std::rand()%256)/256.f, 1.f, 1.f)))
+            .setRadius(20.0)
+            .setPosition(dist*PhiThetaToDir(vec2(phi, 0)));
+
+        lights->add(l);
         helpers->add(PointLightHelperRef(new PointLightHelper(l)));
     }
+    scene.add(lights);
     // helpers->state.hide = ModelStateHideStatus::HIDE;
     scene.add(helpers);
 
-    scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
+    // scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
+
+    // scene.add(newPointLight(
+    //     PointLight().setColor(vec3(1)).setRadius(40)
+    // ));
+
+    scene.activateClusteredLighting();
+
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
@@ -325,14 +342,12 @@ void Game::mainloop()
     // physicsTicks.setMenu(menu);
     // sun->setMenu(menu, U"Sun");
 
-    BenchTimer cullTimer("Frustum Culling");
+    BenchTimer cullTimer("Light Culling");
     cullTimer.setMenu(menu);
 
     menu.batch();
     scene2D.updateAllObjects();
     fuiBatch->batch();
-
-   
 
     state = AppState::run;
     std::thread physicsThreads(&Game::physicsLoop, this);
@@ -350,6 +365,9 @@ void Game::mainloop()
         menu.updateText();
 
         mainloopPreRenderRoutine();
+
+        // lights->state.setRotation(vec3(0, globals.simulationTime.getElapsedTime()*0.25, 0));
+
 
         /* UI & 2D Render */
         glEnable(GL_BLEND);
@@ -373,9 +391,9 @@ void Game::mainloop()
         scene.generateShadowMaps();
         renderBuffer.activate();
 
-        cullTimer.start();
+        
         scene.cull();
-        cullTimer.end();
+        
 
         /* 3D Early Depth Testing */
         scene.depthOnlyDraw(*globals.currentCamera, true);
@@ -383,7 +401,9 @@ void Game::mainloop()
 
         /* 3D Render */
         skybox->bindMap(0, 4);
+        cullTimer.start();
         scene.genLightBuffer();
+        cullTimer.end();
         scene.draw();
         renderBuffer.deactivate();
 
