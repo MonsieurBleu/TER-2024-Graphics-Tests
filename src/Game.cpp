@@ -292,7 +292,7 @@ void Game::mainloop()
 
     ObjectGroupRef lights = newObjectGroup();
     helpers = newObjectGroup();
-    int nbLights = 1;
+    int nbLights = 1000;
     for(int i = 0; i < nbLights; i++)
     {
         ScenePointLight l = newPointLight();
@@ -304,14 +304,14 @@ void Game::mainloop()
 
         l->setIntensity(5.f)
             .setColor(hsv2rgb(vec3((float)(std::rand()%256)/256.f, 1.f, 1.f)))
-            .setRadius(20.0)
+            .setRadius(5.0)
             .setPosition(dist*PhiThetaToDir(vec2(phi, 0)));
 
         lights->add(l);
         helpers->add(PointLightHelperRef(new PointLightHelper(l)));
     }
     scene.add(lights);
-    // helpers->state.hide = ModelStateHideStatus::HIDE;
+    helpers->state.hide = ModelStateHideStatus::HIDE;
     scene.add(helpers);
 
     // scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
@@ -366,7 +366,7 @@ void Game::mainloop()
 
         mainloopPreRenderRoutine();
 
-        // lights->state.setRotation(vec3(0, globals.simulationTime.getElapsedTime()*0.25, 0));
+        lights->state.setRotation(vec3(0, globals.simulationTime.getElapsedTime()*0.25, 0));
 
 
         /* UI & 2D Render */
@@ -400,10 +400,10 @@ void Game::mainloop()
         glDepthFunc(GL_EQUAL);
 
         /* 3D Render */
-        skybox->bindMap(0, 4);
         cullTimer.start();
         scene.genLightBuffer();
         cullTimer.end();
+        skybox->bindMap(0, 4);
         scene.draw();
         renderBuffer.deactivate();
 
