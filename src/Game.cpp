@@ -18,7 +18,7 @@ void Game::init(int paramSample)
     App::init();
 
     // activateMainSceneBindlessTextures();
-    activateMainSceneClusteredLighting(ivec3(16, 9, 24));
+    activateMainSceneClusteredLighting(ivec3(16, 9, 24), 5e3f);
 
     setIcon("ressources/icon.png");
 
@@ -226,7 +226,7 @@ void Game::mainloop()
     floor->loadFromFolder("ressources/models/cube/");
 
     int gridSize = 7.5;
-    int gridScale = 12;
+    int gridScale = 15;
     for (int i = -gridSize; i <= gridSize; i++)
         for (int j = -gridSize; j <= gridSize; j++)
         {
@@ -279,16 +279,16 @@ void Game::mainloop()
     // trunk->updateInstances();
     // scene.add(trunk);
 
-    // SceneDirectionalLight sun = newDirectionLight(
-    //     DirectionLight()
-    //         .setColor(vec3(143, 107, 71) / vec3(255))
-    //         .setDirection(normalize(vec3(-1.0, -1.0, 0.0)))
-    //         .setIntensity(1.0));
+    SceneDirectionalLight sun = newDirectionLight(
+        DirectionLight()
+            .setColor(vec3(143, 107, 71) / vec3(255))
+            .setDirection(normalize(vec3(-1.0, -1.0, 0.0)))
+            .setIntensity(1.0));
 
-    // sun->cameraResolution = vec2(2048);
-    // sun->shadowCameraSize = vec2(90, 90);
-    // sun->activateShadows();
-    // scene.add(sun);
+    sun->cameraResolution = vec2(2048);
+    sun->shadowCameraSize = vec2(90, 90);
+    sun->activateShadows();
+    scene.add(sun);
 
     ObjectGroupRef lights = newObjectGroup();
     helpers = newObjectGroup();
@@ -304,7 +304,7 @@ void Game::mainloop()
 
         l->setIntensity(5.f)
             .setColor(hsv2rgb(vec3((float)(std::rand()%256)/256.f, 1.f, 1.f)))
-            .setRadius(5.0)
+            .setRadius(25.0)
             .setPosition(dist*PhiThetaToDir(vec2(phi, 0)));
 
         lights->add(l);
