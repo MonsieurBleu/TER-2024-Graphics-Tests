@@ -220,7 +220,7 @@ void Game::mainloop()
     skybox->depthWrite = true;
     skybox->state.frustumCulled = false;
     skybox->state.scaleScalar(1E6);
-    // scene.add(skybox);
+    scene.add(skybox);
 
     ModelRef floor = newModel(GameGlobals::PBR);
     floor->loadFromFolder("ressources/models/cube/");
@@ -233,34 +233,34 @@ void Game::mainloop()
             ModelRef f = floor->copyWithSharedMesh();
             f->state
                 .setScale(vec3(gridScale, 0.25f, gridScale))
-                .setPosition(vec3(i * gridScale * 2.0, -1.0, j * gridScale * 2.0));
+                .setPosition(vec3(i * gridScale * 2.0, 0.0, j * gridScale * 2.0));
             scene.add(f);
         }
 
-    // int forestSize = 14;
-    // float treeScale = 0.5;
+    int forestSize = 14;
+    float treeScale = 0.20;
 
-    // ModelRef leaves = newModel(GameGlobals::PBRstencil);
-    // leaves->loadFromFolder("ressources/models/fantasy tree/");
-    // leaves->noBackFaceCulling = true;
+    ModelRef leaves = newModel(GameGlobals::PBRstencil);
+    leaves->loadFromFolder("ressources/models/fantasy tree/");
+    leaves->noBackFaceCulling = true;
 
-    // ModelRef trunk = newModel(GameGlobals::PBR);
-    // trunk->loadFromFolder("ressources/models/fantasy tree/trunk/");
+    ModelRef trunk = newModel(GameGlobals::PBR);
+    trunk->loadFromFolder("ressources/models/fantasy tree/trunk/");
 
-    // for (int i = -forestSize; i < forestSize; i++)
-    //     for (int j = -forestSize; j < forestSize; j++)
-    //     {
-    //         ObjectGroupRef tree = newObjectGroup();
-    //         tree->add(trunk->copyWithSharedMesh());
-    //         // ModelRef l = leaves->copyWithSharedMesh();
-    //         // l->noBackFaceCulling = true;
-    //         // tree->add(l);
-    //         tree->state
-    //             .scaleScalar(treeScale)
-    //             .setPosition(vec3(i * treeScale * 25, 0, j * treeScale * 25));
+    for (int i = -forestSize; i < forestSize; i++)
+        for (int j = -forestSize; j < forestSize; j++)
+        {
+            ObjectGroupRef tree = newObjectGroup();
+            tree->add(trunk->copyWithSharedMesh());
+            ModelRef l = leaves->copyWithSharedMesh();
+            l->noBackFaceCulling = true;
+            tree->add(l);
+            tree->state
+                .scaleScalar(treeScale)
+                .setPosition(vec3(i * treeScale * 50, 0, j * treeScale * 50));
 
-    //         scene.add(tree);
-    //     }
+            scene.add(tree);
+        }
 
     /* Instanced Mesh example */
     // InstancedModelRef trunk = newInstancedModel();
@@ -303,9 +303,9 @@ void Game::mainloop()
         dist = pow(dist, 0.5f)*maxDist;
 
         l->setIntensity(5.f)
-            .setColor(hsv2rgb(vec3((float)(std::rand()%256)/256.f, 1.f, 1.f)))
-            .setRadius(25.0)
-            .setPosition(dist*PhiThetaToDir(vec2(phi, 0)));
+            .setRadius(10.0)
+            .setColor(hsv2rgb(vec3((float)(std::rand()%256)/256.f, 1.0, 1.f)))
+            .setPosition(dist*PhiThetaToDir(vec2(phi, 0)) + vec3(0, l->radius()*0.25, 0));
 
         lights->add(l);
         helpers->add(PointLightHelperRef(new PointLightHelper(l)));
