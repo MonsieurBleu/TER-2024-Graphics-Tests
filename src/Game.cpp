@@ -11,6 +11,9 @@
 
 #include <Helpers.hpp>
 
+#include <VulpineAssets.hpp>
+#include <Skeleton.hpp>
+
 Game::Game(GLFWwindow *window) : App(window) {}
 
 void Game::init(int paramSample)
@@ -237,34 +240,34 @@ void Game::mainloop()
             scene.add(f);
         }
 
-    int forestSize = 14;
-    float treeScale = 0.20;
+    // int forestSize = 14;
+    // float treeScale = 0.20;
 
-    ModelRef leaves = newModel(GameGlobals::PBRstencil);
-    leaves->loadFromFolder("ressources/models/fantasy tree/");
-    leaves->noBackFaceCulling = true;
+    // ModelRef leaves = newModel(GameGlobals::PBRstencil);
+    // leaves->loadFromFolder("ressources/models/fantasy tree/");
+    // leaves->noBackFaceCulling = true;
 
-    ModelRef trunk = newModel(GameGlobals::PBR);
-    trunk->loadFromFolder("ressources/models/fantasy tree/trunk/");
+    // ModelRef trunk = newModel(GameGlobals::PBR);
+    // trunk->loadFromFolder("ressources/models/fantasy tree/trunk/");
 
-    for (int i = -forestSize; i < forestSize; i++)
-        for (int j = -forestSize; j < forestSize; j++)
-        {
-            ObjectGroupRef tree = newObjectGroup();
-            tree->add(trunk->copyWithSharedMesh());
-            ModelRef l = leaves->copyWithSharedMesh();
-            l->noBackFaceCulling = true;
-            tree->add(l);
-            tree->state
-                .scaleScalar(treeScale)
-                .setPosition(vec3(i * treeScale * 50, 0, j * treeScale * 50));
+    // for (int i = -forestSize; i < forestSize; i++)
+    //     for (int j = -forestSize; j < forestSize; j++)
+    //     {
+    //         ObjectGroupRef tree = newObjectGroup();
+    //         tree->add(trunk->copyWithSharedMesh());
+    //         ModelRef l = leaves->copyWithSharedMesh();
+    //         l->noBackFaceCulling = true;
+    //         tree->add(l);
+    //         tree->state
+    //             .scaleScalar(treeScale)
+    //             .setPosition(vec3(i * treeScale * 50, 0, j * treeScale * 50));
 
-            scene.add(tree);
-        }
+    //         scene.add(tree);
+    //     }
 
     /* Instanced Mesh example */
     // InstancedModelRef trunk = newInstancedModel();
-    // trunk->setMaterial(PBRinstanced);
+    // trunk->setMaterial(GameGlobals::PBRinstanced);
     // trunk->loadFromFolder("ressources/models/fantasy tree/trunk/");
     // trunk->allocate(2E4);
 
@@ -292,7 +295,7 @@ void Game::mainloop()
 
     ObjectGroupRef lights = newObjectGroup();
     helpers = newObjectGroup();
-    int nbLights = 1000;
+    int nbLights = 128;
     for(int i = 0; i < nbLights; i++)
     {
         ScenePointLight l = newPointLight();
@@ -337,8 +340,6 @@ void Game::mainloop()
     globals.gpuTime.setMenu(menu);
     globals.fpsLimiter.setMenu(menu);
 
-    
-
     // physicsTicks.setMenu(menu);
     // sun->setMenu(menu, U"Sun");
 
@@ -353,6 +354,37 @@ void Game::mainloop()
     std::thread physicsThreads(&Game::physicsLoop, this);
 
     glLineWidth(1.0);
+
+    MeshVao test = loadVulpineMesh("ressources/models/vulpineMesh/Erika_Archer_Body_Mesh.vulpineMesh");
+    ModelRef testmodel = newModel(GameGlobals::PBR, test);
+    // testmodel->state.frustumCulled = false;
+    // testmodel->noBackFaceCulling = true;
+    testmodel->state.scaleScalar(1);
+
+    InstancedModelRef testi = newInstancedModel(GameGlobals::PBRinstanced, test);
+    testi->allocate(64);
+
+    for(int i = 0; i < 8; i++)
+    for(int j = 0; j < 8; j++)
+    {
+        ModelInstance &inst = *testi->createInstance();
+        inst.scaleScalar(0.25).setPosition(vec3(i*20, 0, j*20));
+        inst.update();
+    }
+    testi->updateInstances();
+
+    scene.add(testi);
+    scene.add(testmodel);
+
+
+
+    Skeleton humanSkeleton;
+    humanSkeleton.load("ressources/models/animations/human.vulpineSkeleton");
+
+    SkeletonAnimationState dummyState;
+    for(int i = 0; i < humanSkeleton.getSize(); i++) dummyState.push_back(mat4(1));
+
+    humanSkeleton.applyGraph(dummyState);
 
     /* Main Loop */
     while (state != AppState::quit)
