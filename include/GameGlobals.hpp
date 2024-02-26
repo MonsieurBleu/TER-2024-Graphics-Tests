@@ -8,4 +8,5 @@ class GameGlobals
         static MeshMaterial PBR;
         static MeshMaterial PBRstencil;
         static MeshMaterial PBRinstanced;
+        static MeshMaterial PBRanimated;
 };

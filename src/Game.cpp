@@ -10,7 +10,6 @@
 #include <fstream>
 
 #include <Helpers.hpp>
-
 #include <VulpineAssets.hpp>
 #include <Skeleton.hpp>
 
@@ -21,7 +20,7 @@ void Game::init(int paramSample)
     App::init();
 
     // activateMainSceneBindlessTextures();
-    activateMainSceneClusteredLighting(ivec3(16, 9, 24), 5e3f);
+    // activateMainSceneClusteredLighting(ivec3(16, 9, 24), 5e3f);
 
     setIcon("ressources/icon.png");
 
@@ -70,6 +69,12 @@ void Game::init(int paramSample)
             "shader/foward/basicInstance.vert",
             ""));
 
+    depthOnlyAnimatedMaterial = MeshMaterial(
+        new ShaderProgram(
+            "shader/depthOnlyStencil.frag",
+            "shader/animation/animated.vert",
+            ""));
+
     GameGlobals::PBR = MeshMaterial(
         new ShaderProgram(
             "shader/foward/PBR.frag",
@@ -92,6 +97,13 @@ void Game::init(int paramSample)
             "",
             globals.standartShaderUniform3D()));
 
+    GameGlobals::PBRanimated = MeshMaterial(
+        new ShaderProgram(
+            "shader/foward/PBR.frag",
+            "shader/animation/animated.vert",
+            "",
+            globals.standartShaderUniform3D()));
+
     skyboxMaterial = MeshMaterial(
         new ShaderProgram(
             "shader/foward/Skybox.frag",
@@ -100,6 +112,7 @@ void Game::init(int paramSample)
             globals.standartShaderUniform3D()));
 
     GameGlobals::PBRstencil.depthOnly = depthOnlyStencilMaterial;
+    GameGlobals::PBRanimated.depthOnly = depthOnlyAnimatedMaterial;
     GameGlobals::PBRinstanced.depthOnly = depthOnlyInstancedMaterial;
     scene.depthOnlyMaterial = depthOnlyMaterial;
 
@@ -169,7 +182,13 @@ bool Game::userInput(GLFWKeyInfo input)
             SSAO.getShader().reset();
             depthOnlyMaterial->reset();
             GameGlobals::PBR->reset();
+            GameGlobals::PBRinstanced->reset();
             GameGlobals::PBRstencil->reset();
+            GameGlobals::PBRanimated->reset();
+            
+            GameGlobals::PBRinstanced.depthOnly->reset();
+            GameGlobals::PBRstencil.depthOnly->reset();
+            GameGlobals::PBRanimated.depthOnly->reset();
             skyboxMaterial->reset();
             break;
         
@@ -228,8 +247,8 @@ void Game::mainloop()
     ModelRef floor = newModel(GameGlobals::PBR);
     floor->loadFromFolder("ressources/models/cube/");
 
-    int gridSize = 7.5;
-    int gridScale = 15;
+    int gridSize = 10;
+    int gridScale = 7.5;
     for (int i = -gridSize; i <= gridSize; i++)
         for (int j = -gridSize; j <= gridSize; j++)
         {
@@ -295,7 +314,7 @@ void Game::mainloop()
 
     ObjectGroupRef lights = newObjectGroup();
     helpers = newObjectGroup();
-    int nbLights = 128;
+    int nbLights = 0;
     for(int i = 0; i < nbLights; i++)
     {
         ScenePointLight l = newPointLight();
@@ -328,7 +347,7 @@ void Game::mainloop()
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
-    glLineWidth(3.0);
+    glLineWidth(1.0);
 
     /* Setting up the UI */
     FastUI_context ui(fuiBatch, FUIfont, scene2D, defaultFontMaterial);
@@ -353,29 +372,14 @@ void Game::mainloop()
     state = AppState::run;
     std::thread physicsThreads(&Game::physicsLoop, this);
 
-    glLineWidth(1.0);
+    glLineWidth(5.0);
 
-    MeshVao test = loadVulpineMesh("ressources/models/vulpineMesh/Erika_Archer_Body_Mesh.vulpineMesh");
-    ModelRef testmodel = newModel(GameGlobals::PBR, test);
+    MeshVao test = loadVulpineMesh("ressources/models/vulpineMesh/Beta_Surface.vulpineMesh");
+    ModelRef testmodel = newModel(GameGlobals::PBRanimated, test);
     // testmodel->state.frustumCulled = false;
     // testmodel->noBackFaceCulling = true;
     testmodel->state.scaleScalar(1);
-
-    InstancedModelRef testi = newInstancedModel(GameGlobals::PBRinstanced, test);
-    testi->allocate(64);
-
-    for(int i = 0; i < 8; i++)
-    for(int j = 0; j < 8; j++)
-    {
-        ModelInstance &inst = *testi->createInstance();
-        inst.scaleScalar(0.25).setPosition(vec3(i*20, 0, j*20));
-        inst.update();
-    }
-    testi->updateInstances();
-
-    scene.add(testi);
     scene.add(testmodel);
-
 
 
     Skeleton humanSkeleton;
@@ -383,8 +387,17 @@ void Game::mainloop()
 
     SkeletonAnimationState dummyState;
     for(int i = 0; i < humanSkeleton.getSize(); i++) dummyState.push_back(mat4(1));
-
     humanSkeleton.applyGraph(dummyState);
+    dummyState.send();
+
+    SkeletonAnimationState defaultState;
+    for(int i = 0; i < humanSkeleton.getSize(); i++) defaultState.push_back(mat4(1));
+    humanSkeleton.applyGraph(defaultState);
+    defaultState.send();
+
+
+    // SkeletonHelperRef animHelper(new SkeletonHelper(dummyState));
+    // scene.add(animHelper);
 
     /* Main Loop */
     while (state != AppState::quit)
@@ -398,8 +411,23 @@ void Game::mainloop()
 
         mainloopPreRenderRoutine();
 
-        lights->state.setRotation(vec3(0, globals.simulationTime.getElapsedTime()*0.25, 0));
+        float time = globals.simulationTime.getElapsedTime();
+        lights->state.setRotation(vec3(0, time*0.25, 0));
 
+
+        for(int i = 0; i < humanSkeleton.getSize(); i++) dummyState[i] = mat4(1);
+        ModelState3D dummyBone;
+        // dummyBone.setPosition(vec3(0, 1.0 + cos(time), 0));
+        dummyBone.setRotation(vec3(0.5*cos(time), 0, 0));
+        dummyBone.update();
+        // id 12 : left shoulder
+        dummyState[12] = dummyBone.modelMatrix;
+        for(int i = 2; i < humanSkeleton.getSize(); i++) dummyState[i] = dummyBone.modelMatrix;
+        humanSkeleton.applyGraph(dummyState);
+
+        dummyState.update();
+        dummyState.activate(2);
+        defaultState.activate(3);
 
         /* UI & 2D Render */
         glEnable(GL_BLEND);

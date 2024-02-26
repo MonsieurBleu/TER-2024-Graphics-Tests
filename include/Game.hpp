@@ -12,6 +12,7 @@ private:
     MeshMaterial skyboxMaterial;
     MeshMaterial depthOnlyMaterial;
     MeshMaterial depthOnlyStencilMaterial;
+    MeshMaterial depthOnlyAnimatedMaterial;
     MeshMaterial depthOnlyInstancedMaterial;
 
     /* Fast-UI */
