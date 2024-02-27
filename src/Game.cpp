@@ -244,20 +244,20 @@ void Game::mainloop()
     skybox->state.scaleScalar(1E6);
     scene.add(skybox);
 
-    ModelRef floor = newModel(GameGlobals::PBR);
-    floor->loadFromFolder("ressources/models/cube/");
+    // ModelRef floor = newModel(GameGlobals::PBR);
+    // floor->loadFromFolder("ressources/models/cube/");
 
-    int gridSize = 10;
-    int gridScale = 7.5;
-    for (int i = -gridSize; i <= gridSize; i++)
-        for (int j = -gridSize; j <= gridSize; j++)
-        {
-            ModelRef f = floor->copyWithSharedMesh();
-            f->state
-                .setScale(vec3(gridScale, 0.25f, gridScale))
-                .setPosition(vec3(i * gridScale * 2.0, 0.0, j * gridScale * 2.0));
-            scene.add(f);
-        }
+    // int gridSize = 10;
+    // int gridScale = 7.5;
+    // for (int i = -gridSize; i <= gridSize; i++)
+    //     for (int j = -gridSize; j <= gridSize; j++)
+    //     {
+    //         ModelRef f = floor->copyWithSharedMesh();
+    //         f->state
+    //             .setScale(vec3(gridScale, 0.25f, gridScale))
+    //             .setPosition(vec3(i * gridScale * 2.0, 0.0, j * gridScale * 2.0));
+    //         scene.add(f);
+    //     }
 
     // int forestSize = 14;
     // float treeScale = 0.20;
@@ -376,28 +376,29 @@ void Game::mainloop()
 
     MeshVao test = loadVulpineMesh("ressources/models/vulpineMesh/Beta_Surface.vulpineMesh");
     ModelRef testmodel = newModel(GameGlobals::PBRanimated, test);
-    // testmodel->state.frustumCulled = false;
-    // testmodel->noBackFaceCulling = true;
+    testmodel->setMap(Texture2D().loadFromFileKTX("ressources/models/vulpineMesh/CE.ktx"), 0);
+    testmodel->setMap(Texture2D().loadFromFileKTX("ressources/models/vulpineMesh/NRM.ktx"), 1);
     testmodel->state.scaleScalar(1);
     scene.add(testmodel);
 
 
-    Skeleton humanSkeleton;
-    humanSkeleton.load("ressources/models/animations/human.vulpineSkeleton");
+    SkeletonRef humanSkeleton(new Skeleton);
+    humanSkeleton->load("ressources/models/animations/human.vulpineSkeleton");
 
     SkeletonAnimationState dummyState;
-    for(int i = 0; i < humanSkeleton.getSize(); i++) dummyState.push_back(mat4(1));
-    humanSkeleton.applyGraph(dummyState);
+    dummyState.skeleton = humanSkeleton;
+    for(int i = 0; i < humanSkeleton->getSize(); i++) dummyState.push_back(mat4(1));
+    humanSkeleton->applyGraph(dummyState);
     dummyState.send();
 
     SkeletonAnimationState defaultState;
-    for(int i = 0; i < humanSkeleton.getSize(); i++) defaultState.push_back(mat4(1));
-    humanSkeleton.applyGraph(defaultState);
+    for(int i = 0; i < humanSkeleton->getSize(); i++) defaultState.push_back(mat4(1));
+    humanSkeleton->applyGraph(defaultState);
     defaultState.send();
 
 
-    // SkeletonHelperRef animHelper(new SkeletonHelper(dummyState));
-    // scene.add(animHelper);
+    SkeletonHelperRef animHelper(new SkeletonHelper(dummyState));
+    scene.add(animHelper);
 
     /* Main Loop */
     while (state != AppState::quit)
@@ -415,15 +416,15 @@ void Game::mainloop()
         lights->state.setRotation(vec3(0, time*0.25, 0));
 
 
-        for(int i = 0; i < humanSkeleton.getSize(); i++) dummyState[i] = mat4(1);
+        for(int i = 0; i < humanSkeleton->getSize(); i++) dummyState[i] = mat4(1);
         ModelState3D dummyBone;
         // dummyBone.setPosition(vec3(0, 1.0 + cos(time), 0));
         dummyBone.setRotation(vec3(0.5*cos(time), 0, 0));
         dummyBone.update();
         // id 12 : left shoulder
         dummyState[12] = dummyBone.modelMatrix;
-        for(int i = 2; i < humanSkeleton.getSize(); i++) dummyState[i] = dummyBone.modelMatrix;
-        humanSkeleton.applyGraph(dummyState);
+        for(int i = 2; i < humanSkeleton->getSize(); i++) dummyState[i] = dummyBone.modelMatrix;
+        humanSkeleton->applyGraph(dummyState);
 
         dummyState.update();
         dummyState.activate(2);
