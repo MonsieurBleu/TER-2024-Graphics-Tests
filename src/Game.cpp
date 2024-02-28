@@ -20,7 +20,7 @@ void Game::init(int paramSample)
     App::init();
 
     // activateMainSceneBindlessTextures();
-    // activateMainSceneClusteredLighting(ivec3(16, 9, 24), 5e3f);
+    activateMainSceneClusteredLighting(ivec3(16, 9, 24), 5e3f);
 
     setIcon("ressources/icon.png");
 
@@ -244,20 +244,20 @@ void Game::mainloop()
     skybox->state.scaleScalar(1E6);
     scene.add(skybox);
 
-    // ModelRef floor = newModel(GameGlobals::PBR);
-    // floor->loadFromFolder("ressources/models/cube/");
+    ModelRef floor = newModel(GameGlobals::PBR);
+    floor->loadFromFolder("ressources/models/cube/");
 
-    // int gridSize = 10;
-    // int gridScale = 7.5;
-    // for (int i = -gridSize; i <= gridSize; i++)
-    //     for (int j = -gridSize; j <= gridSize; j++)
-    //     {
-    //         ModelRef f = floor->copyWithSharedMesh();
-    //         f->state
-    //             .setScale(vec3(gridScale, 0.25f, gridScale))
-    //             .setPosition(vec3(i * gridScale * 2.0, 0.0, j * gridScale * 2.0));
-    //         scene.add(f);
-    //     }
+    int gridSize = 10;
+    int gridScale = 7.5;
+    for (int i = -gridSize; i <= gridSize; i++)
+        for (int j = -gridSize; j <= gridSize; j++)
+        {
+            ModelRef f = floor->copyWithSharedMesh();
+            f->state
+                .setScale(vec3(gridScale, 0.25f, gridScale))
+                .setPosition(vec3(i * gridScale * 2.0, 0.0, j * gridScale * 2.0));
+            scene.add(f);
+        }
 
     // int forestSize = 14;
     // float treeScale = 0.20;
