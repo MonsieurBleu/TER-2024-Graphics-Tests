@@ -1,0 +1,7 @@
+source : 
+    "shader/foward/PBR.frag"
+    "shader/foward/basic.vert"
+
+uniforms : 
+    {standart3D}
+    

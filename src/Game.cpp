@@ -194,9 +194,9 @@ bool Game::userInput(GLFWKeyInfo input)
         
         case GLFW_KEY_F6:
             if(helpers->state.hide == ModelStateHideStatus::SHOW)
-                helpers->state.hide = ModelStateHideStatus::HIDE;
+                helpers->state.setHideStatus(ModelStateHideStatus::HIDE);
             else
-                helpers->state.hide = ModelStateHideStatus::SHOW;
+                helpers->state.setHideStatus(ModelStateHideStatus::SHOW);
             break;
 
         case GLFW_KEY_F8:
@@ -314,7 +314,7 @@ void Game::mainloop()
 
     ObjectGroupRef lights = newObjectGroup();
     helpers = newObjectGroup();
-    int nbLights = 0;
+    int nbLights = 1e3;
     for(int i = 0; i < nbLights; i++)
     {
         ScenePointLight l = newPointLight();
@@ -325,7 +325,7 @@ void Game::mainloop()
         dist = pow(dist, 0.5f)*maxDist;
 
         l->setIntensity(5.f)
-            .setRadius(10.0)
+            .setRadius(5.0)
             .setColor(hsv2rgb(vec3((float)(std::rand()%256)/256.f, 1.0, 1.f)))
             .setPosition(dist*PhiThetaToDir(vec2(phi, 0)) + vec3(0, l->radius()*0.25, 0));
 
@@ -341,8 +341,6 @@ void Game::mainloop()
     // scene.add(newPointLight(
     //     PointLight().setColor(vec3(1)).setRadius(40)
     // ));
-
-    scene.activateClusteredLighting();
 
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -365,40 +363,16 @@ void Game::mainloop()
     BenchTimer cullTimer("Light Culling");
     cullTimer.setMenu(menu);
 
-    menu.batch();
-    scene2D.updateAllObjects();
-    fuiBatch->batch();
 
     state = AppState::run;
     std::thread physicsThreads(&Game::physicsLoop, this);
 
     glLineWidth(5.0);
-
-    MeshVao test = loadVulpineMesh("ressources/models/vulpineMesh/Beta_Surface.vulpineMesh");
-    ModelRef testmodel = newModel(GameGlobals::PBRanimated, test);
-    testmodel->setMap(Texture2D().loadFromFileKTX("ressources/models/vulpineMesh/CE.ktx"), 0);
-    testmodel->setMap(Texture2D().loadFromFileKTX("ressources/models/vulpineMesh/NRM.ktx"), 1);
-    testmodel->state.scaleScalar(1);
-    scene.add(testmodel);
-
-
-    SkeletonRef humanSkeleton(new Skeleton);
-    humanSkeleton->load("ressources/models/animations/human.vulpineSkeleton");
-
-    SkeletonAnimationState dummyState;
-    dummyState.skeleton = humanSkeleton;
-    for(int i = 0; i < humanSkeleton->getSize(); i++) dummyState.push_back(mat4(1));
-    humanSkeleton->applyGraph(dummyState);
-    dummyState.send();
-
-    SkeletonAnimationState defaultState;
-    for(int i = 0; i < humanSkeleton->getSize(); i++) defaultState.push_back(mat4(1));
-    humanSkeleton->applyGraph(defaultState);
-    defaultState.send();
-
-
-    SkeletonHelperRef animHelper(new SkeletonHelper(dummyState));
-    scene.add(animHelper);
+ 
+    menu.batch();
+    scene2D.updateAllObjects();
+    fuiBatch->batch();
+    scene2D.add(menu);
 
     /* Main Loop */
     while (state != AppState::quit)
@@ -414,21 +388,6 @@ void Game::mainloop()
 
         float time = globals.simulationTime.getElapsedTime();
         lights->state.setRotation(vec3(0, time*0.25, 0));
-
-
-        for(int i = 0; i < humanSkeleton->getSize(); i++) dummyState[i] = mat4(1);
-        ModelState3D dummyBone;
-        // dummyBone.setPosition(vec3(0, 1.0 + cos(time), 0));
-        dummyBone.setRotation(vec3(0.5*cos(time), 0, 0));
-        dummyBone.update();
-        // id 12 : left shoulder
-        dummyState[12] = dummyBone.modelMatrix;
-        for(int i = 2; i < humanSkeleton->getSize(); i++) dummyState[i] = dummyBone.modelMatrix;
-        humanSkeleton->applyGraph(dummyState);
-
-        dummyState.update();
-        dummyState.activate(2);
-        defaultState.activate(3);
 
         /* UI & 2D Render */
         glEnable(GL_BLEND);

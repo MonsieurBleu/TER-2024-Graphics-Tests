@@ -1,0 +1,33 @@
+*
+	I'm a comment !
+*
+
+"I'm a string !
+* I'm a comment inside a string ! I should be inside the string *"
+
+*
+	I'm a comment ! (again)
+*
+
+:	name
+	:	Pingu
+	;
+
+:	mesh
+	:	ressources/models/pingu/pingu.vulpineMesh
+	;
+           
+:	textures
+	:	0	ktx2	ressources/models/pingu/pinguCE.ktx2
+	:	1	ktx2	ressources/models/pingu/pinguNRM.ktx2
+	:	2	stb8	"ressources/models/pingu/pingu Calc.png"
+	:	3	stbf	ressources/models/pingu/pinguAlts.hdr
+	;
+
+:	material
+	:	ressources/materials/Example.vulpineMaterial.txt
+	;
+
+:	uniforms
+	;	19
+;
