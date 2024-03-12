@@ -3,10 +3,10 @@
 #include <memory>
 #include <fstream>
 
-typedef unsigned char uft8;
+typedef char uft8;
 
 /*
-    Simple buffer to load a full uft8 file and parse Vulpine Format text based formats
+    Simple buffer to load a full uft8 file and parse Vulpine text based formats
 */
 class VulpineTextBuff
 {
@@ -34,3 +34,37 @@ class VulpineTextBuff
         uft8* read();
 };
 
+#include <string.h>
+
+template<typename T>
+T fromStr(const char * ptr);
+
+template<>
+int fromStr(const char *ptr);
+
+template<>
+float fromStr(const char *ptr);
+
+template<>
+const char* fromStr(const char *ptr);
+
+template<>
+std::string fromStr(const char *ptr);
+
+#include <memory>
+
+template<typename T, typename... params>
+class loader
+{
+    private : 
+
+    public :
+
+        T val;
+        T create(VulpineTextBuff &buff)
+        {
+            val = T(fromStr<params>(buff.read())...);
+            return val;
+        };
+
+};

@@ -12,7 +12,7 @@
  *  - mainloop method of type (any)[void].
  */
 
-int main_old()
+int main()
 {
     Game *game = nullptr;
     std::string winname =  "Vulpine Engine Game Demo";
@@ -23,27 +23,39 @@ int main_old()
 
 #include <VulpineFastParser.hpp>
 
-int main()
+int main_old()
 {
-    VulpineTextBuff test("../notes/Example.vulpineModel.txt");
-    // VulpineTextBuff test("../notes/ParserBenchmark.txt");
+    // VulpineTextBuff test("../notes/Example.vulpineModel.txt");
+    // VulpineTextBuff test("../notes/loaderTest.txt");
 
-    // std::cout 
-    // << test.data 
-    // << "\n====================END OF FILE====================\n" 
-    // << test.getSize() << "\n";
+    // uft8 *tmp = nullptr;
 
-    uft8 *tmp = nullptr;
+    // BenchTimer bench;
+    // bench.start();
+    // do
+    // {
+    //     tmp = test.read();
+    //     if(tmp)
+    //     std::cout << tmp << "\n==================================\n";
+    // }
+    // while(tmp);S
+    // bench.end();
 
-    BenchTimer bench;
-    bench.start();
-    do
-    {
-        tmp = test.read();
-        if(tmp)
-        std::cout << tmp << "\n==================================\n";
-    }
-    while(tmp);
-    bench.end();
     // std::cout << bench << "\n";
+
+    // char str[] = "189";
+    // std::cout << fromStr<int>(str) << "\n"; 
+
+    // loader<int, int> l; 
+
+    // std::cout << l.create(test) << "\n";
+    // std::cout << l.create(test) << "\n";
+    // std::cout << l.create(test) << "\n";
+    // std::cout << l.create(test) << "\n";
+    // std::cout << l.create(test) << "\n";
+
+    // loader<ShaderProgram, std::string, std::string> l;
+    // l.create();
+
+    return EXIT_SUCCESS;
 }

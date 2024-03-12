@@ -53,24 +53,12 @@ bool VulpineTextBuff::readBreakChar()
         return false;
     } 
     
-        
-
     if(stringMode)
-    {
-        stringMode = data[readhead] != '"';
-        // if(!stringMode) std::cout << TERMINAL_INFO << "\nENDING STRING MODE" << TERMINAL_RESET;
-        
-        if(!stringMode) readhead++;
-
-        return !stringMode;
-    }
+        return !(stringMode = data[readhead] != '"');
 
     if(commentsMode)
     {
         commentsMode = data[readhead] != '*';
-        // if(!commentsMode) std::cout << TERMINAL_TIMER << "\nENDING COMMENTS MODE\n" << TERMINAL_RESET;
-        // else
-        //     std::cout << TERMINAL_NOTIF << data[readhead];
         return true;
     }
 
@@ -79,24 +67,19 @@ bool VulpineTextBuff::readBreakChar()
         case '\0' : 
         case '\n' : 
         case '\t' : 
+        case ' ' :
         case 13 :
             return true;
         break;
 
         case '*' :
-            // std::cout << TERMINAL_TIMER << "\nBEGIN COMMENTS MODE\n" << TERMINAL_RESET;
             commentsMode = true;
             return true;
         break;
 
         case '"' :
-            // std::cout << TERMINAL_INFO << "BEGIN STRING MODE\n" << TERMINAL_RESET;
             stringMode = true;
             return true;
-        break;
-
-        case ' ' :
-            return !stringMode;
         break;
 
         default :
@@ -115,13 +98,37 @@ uft8* VulpineTextBuff::read()
     uft8 *beg = data + readhead;
 
     while(!readBreakChar() && !eof)
-    {
-        // std::cout << "|" << data[readhead] << "|\n"; 
-        // std::cout << data[readhead];
         readhead++;
-    }
 
     data[readhead] = '\0';
 
     return beg;
+}
+
+
+template<typename T>
+T fromStr(const char * ptr);
+
+template<>
+int fromStr(const char *ptr)
+{
+    return atoi(ptr);
+}
+
+template<>
+float fromStr(const char *ptr)
+{
+    return atof(ptr);
+}
+
+template<>
+const char* fromStr(const char *ptr)
+{
+    return ptr;
+}
+
+template<>
+std::string fromStr(const char *ptr)
+{
+    return std::string(ptr);
 }

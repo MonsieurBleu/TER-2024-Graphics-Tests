@@ -13,6 +13,8 @@
 #include <VulpineAssets.hpp>
 #include <Skeleton.hpp>
 
+#include <VulpineFastParser.hpp>
+
 Game::Game(GLFWwindow *window) : App(window) {}
 
 void Game::init(int paramSample)
@@ -373,6 +375,22 @@ void Game::mainloop()
     scene2D.updateAllObjects();
     fuiBatch->batch();
     scene2D.add(menu);
+
+
+
+
+    VulpineTextBuff test("../notes/loaderTest.txt");
+    loader<ShaderProgram, std::string, std::string> l;
+    l.create(test);
+
+
+
+
+
+
+
+
+
 
     /* Main Loop */
     while (state != AppState::quit)
