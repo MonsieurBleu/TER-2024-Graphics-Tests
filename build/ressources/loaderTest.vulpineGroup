@@ -1,0 +1,49 @@
+fox 
+:   meshes 
+    :   fox
+        :   mesh
+            fox
+            :   ressources/models/fox/fox.vulpineMesh
+            ;
+        :   material
+            |   basicPBR
+        :   texture 0
+            foxCE
+            :   source ressources/models/fox/CE.ktx2
+            ;
+        :   texture 1
+            foxNRM
+            :   source ressources/models/fox/NRM.ktx2
+            ;
+        :   state
+            :   position    "0  0   0"
+            :   rotation    "0  90  0"
+            :   scalev1      0.05
+            ;
+        ;
+    :   fox2
+        :   mesh        |   fox
+        :   material    |   basicPBR
+        :   texture 0   |   foxCE
+        :   texture 1   |   foxNRM
+        :   state
+            :   position    "0 0 0"
+            :   rotation    "0 0 0"
+            :   scalev1     0.1
+            ;
+        ;
+    ;
+:   groups 
+    :   foxLights
+        :   pointLights
+            :   FFFFFF 5 10 "0 1 0"
+            :   00FFFF 3 2  "0 2 2"
+            ;
+        ;
+    ;
+:   state
+    :   position    "25 0 0"
+    :   rotation    "0 0 0"
+    :   scalev1     1
+    ;
+;

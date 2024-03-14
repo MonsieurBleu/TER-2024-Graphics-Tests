@@ -1,3 +1,0 @@
-"shader/foward/PBR.frag"
-"shader/foward/basic.vert"
-

@@ -21,41 +21,27 @@ int main()
     return ret; 
 }
 
-#include <VulpineFastParser.hpp>
+// #include <VulpineFastParser.hpp>
 
-int main_old()
-{
-    // VulpineTextBuff test("../notes/Example.vulpineModel.txt");
-    // VulpineTextBuff test("../notes/loaderTest.txt");
+// int main()
+// {
+//     VulpineTextBuff buff("../notes/loaderTest.txt");
 
-    // uft8 *tmp = nullptr;
+//     // Loader2<int, int, int> li;
 
-    // BenchTimer bench;
-    // bench.start();
-    // do
-    // {
-    //     tmp = test.read();
-    //     if(tmp)
-    //     std::cout << tmp << "\n==================================\n";
-    // }
-    // while(tmp);S
-    // bench.end();
+//     // Loader<int>::loadedAssets["yo"] = 5;
+//     // Loader<int>::loadedAssets["yoo"] = 6;
+//     // Loader<int>::loadedAssets["yooo"] = 7;
 
-    // std::cout << bench << "\n";
+//     // Loader2<int, int, int>().addInfos("yo", buff);
+//     // Loader2<int, int>().addInfos("yoo", buff);
+//     // Loader2<int>().addInfos("yooo", buff);
 
-    // char str[] = "189";
-    // std::cout << fromStr<int>(str) << "\n"; 
+//     // std::cout << li.loadedAssets.size() << "\n";
+//     // std::cout << li.loadingInfos.size() << "\n";
 
-    // loader<int, int> l; 
+     
 
-    // std::cout << l.create(test) << "\n";
-    // std::cout << l.create(test) << "\n";
-    // std::cout << l.create(test) << "\n";
-    // std::cout << l.create(test) << "\n";
-    // std::cout << l.create(test) << "\n";
 
-    // loader<ShaderProgram, std::string, std::string> l;
-    // l.create();
-
-    return EXIT_SUCCESS;
-}
+//     return EXIT_SUCCESS;
+// }

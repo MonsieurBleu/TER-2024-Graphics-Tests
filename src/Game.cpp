@@ -13,7 +13,7 @@
 #include <VulpineAssets.hpp>
 #include <Skeleton.hpp>
 
-#include <VulpineFastParser.hpp>
+#include <AssetManager.hpp>
 
 Game::Game(GLFWwindow *window) : App(window) {}
 
@@ -219,7 +219,7 @@ bool Game::userInput(GLFWKeyInfo input)
 
 void Game::physicsLoop()
 {
-    physicsTicks.freq = 45.f;
+    physicsTicks.freq = 1.f;
     physicsTicks.activate();
 
     while (state != quit)
@@ -229,6 +229,12 @@ void Game::physicsLoop()
         physicsMutex.lock();
         physicsEngine.update(1.f / physicsTicks.freq);
         physicsMutex.unlock();
+
+        // BenchTimer timer;
+        // timer.start();
+        // Texture2D ktxtest = Texture2D().loadFromFileKTX_IO("ressources/models/fox/NRM.ktx2");
+        // timer.end();
+        // std::cout << timer << "\n";
 
         physicsTicks.waitForEnd();
     }
@@ -338,13 +344,6 @@ void Game::mainloop()
     helpers->state.hide = ModelStateHideStatus::HIDE;
     scene.add(helpers);
 
-    // scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
-
-    // scene.add(newPointLight(
-    //     PointLight().setColor(vec3(1)).setRadius(40)
-    // ));
-
-
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
     glLineWidth(1.0);
@@ -367,7 +366,7 @@ void Game::mainloop()
 
 
     state = AppState::run;
-    std::thread physicsThreads(&Game::physicsLoop, this);
+    
 
     glLineWidth(5.0);
  
@@ -376,22 +375,16 @@ void Game::mainloop()
     fuiBatch->batch();
     scene2D.add(menu);
 
+    // Loader<Texture2D>::addInfos("../notes/TextureExample.vulpineTexture");
 
+    // VulpineTextBuffRef test(new VulpineTextBuff("../notes/loaderTest.txt"));
+    // Loader<ModelRef>::addInfos(test).loadFromInfos();
 
+    Loader<MeshMaterial>::addInfos("ressources/basicPBR.vulpineMaterial");
+    Loader<ObjectGroupRef>::addInfos("ressources/loaderTest.vulpineGroup");
+    scene.add(Loader<ObjectGroupRef>::get("fox"));
 
-    VulpineTextBuff test("../notes/loaderTest.txt");
-    loader<ShaderProgram, std::string, std::string> l;
-    l.create(test);
-
-
-
-
-
-
-
-
-
-
+    std::thread physicsThreads(&Game::physicsLoop, this);
     /* Main Loop */
     while (state != AppState::quit)
     {
@@ -430,7 +423,7 @@ void Game::mainloop()
         renderBuffer.activate();
 
         
-        scene.cull();
+        scene.cull();  
         
 
         /* 3D Early Depth Testing */
