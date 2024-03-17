@@ -192,6 +192,7 @@ bool Game::userInput(GLFWKeyInfo input)
             GameGlobals::PBRstencil.depthOnly->reset();
             GameGlobals::PBRanimated.depthOnly->reset();
             skyboxMaterial->reset();
+
             break;
         
         case GLFW_KEY_F6:
