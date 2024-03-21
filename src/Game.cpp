@@ -383,19 +383,52 @@ void Game::mainloop()
 
 
     NavGraphRef graph(new NavGraph(0));
-
     graph->addNode(vec3(0, 0, 0));
-    graph->addNode(vec3(0.5, 0, 0));
-    graph->addNode(vec3(0, 0, 1));
-    graph->addNode(vec3(1, 0, 1));
+    graph->addNode(vec3(1, 0, 0));
+    graph->addNode(vec3(1, 0, -1));
+    graph->addNode(vec3(4, 0, -1));
+    graph->addNode(vec3(4, 0, 0));
+    graph->addNode(vec3(2, 0, 0));
+    graph->addNode(vec3(2, 0, 1));
+    graph->addNode(vec3(4, 0, 1));
+    graph->addNode(vec3(0, 0, 2));
+    graph->addNode(vec3(1, 0, 2));
+    graph->addNode(vec3(1, 0, 3));
+    graph->addNode(vec3(2, 0, 3));
+    graph->addNode(vec3(2, 0, 2));
+    graph->addNode(vec3(3, 0, 3));
+    graph->addNode(vec3(3, 0, 2));
+    graph->addNode(vec3(4, 0, 3));
+    graph->addNode(vec3(4, 0, 2));
     graph->connectNodes(0, 1);
-    graph->connectNodes(0, 2);
-    graph->connectNodes(1, 3);
+    graph->connectNodes(1, 2);
     graph->connectNodes(2, 3);
-    graph->connectNodes(0, 3);
-    graph->print();
+    graph->connectNodes(3, 4);
+    graph->connectNodes(4, 5);
+    graph->connectNodes(4, 7);
+    graph->connectNodes(5, 6);
+    graph->connectNodes(6, 7);
+    graph->connectNodes(0, 8);
+    graph->connectNodes(8, 9);
+    graph->connectNodes(9, 10);
+    graph->connectNodes(10, 11);
+    graph->connectNodes(11, 12);
+    graph->connectNodes(12, 14);
+    graph->connectNodes(13, 14);
+    graph->connectNodes(13, 15);
+    graph->connectNodes(16, 15);
+    graph->connectNodes(16, 7);
 
     scene.add(NavGraphHelperRef(new NavGraphHelper(graph)));
+
+
+
+    Path path(0, 16);
+    graph->shortestPath(0, 16, path);
+
+    scene.add(
+        PathHelperRef(new PathHelper(path, graph))
+    );
 
 
     std::thread physicsThreads(&Game::physicsLoop, this);
