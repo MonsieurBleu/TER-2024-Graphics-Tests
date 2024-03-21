@@ -323,7 +323,7 @@ void Game::mainloop()
 
     ObjectGroupRef lights = newObjectGroup();
     helpers = newObjectGroup();
-    int nbLights = 1e3;
+    int nbLights = 0;
     for(int i = 0; i < nbLights; i++)
     {
         ScenePointLight l = newPointLight();
@@ -382,8 +382,8 @@ void Game::mainloop()
     // Loader<ModelRef>::addInfos(test).loadFromInfos();
 
     Loader<MeshMaterial>::addInfos("ressources/basicPBR.vulpineMaterial");
-    Loader<ObjectGroupRef>::addInfos("ressources/loaderTest.vulpineGroup");
-    scene.add(Loader<ObjectGroupRef>::get("fox"));
+    Loader<ObjectGroup>::addInfos("ressources/loaderTest.vulpineGroup");
+    scene.add(Loader<ObjectGroup>::get("fox").copy());
 
     std::thread physicsThreads(&Game::physicsLoop, this);
     /* Main Loop */
