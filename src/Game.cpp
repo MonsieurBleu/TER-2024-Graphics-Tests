@@ -264,7 +264,7 @@ void Game::mainloop()
             ModelRef f = floor->copyWithSharedMesh();
             f->state
                 .setScale(vec3(gridScale, 0.25f, gridScale))
-                .setPosition(vec3(i * gridScale * 2.0, 0.0, j * gridScale * 2.0));
+                .setPosition(vec3(i * gridScale * 2.0, -2, j * gridScale * 2.0));
             scene.add(f);
         }
 
@@ -376,14 +376,27 @@ void Game::mainloop()
     fuiBatch->batch();
     scene2D.add(menu);
 
-    // Loader<Texture2D>::addInfos("../notes/TextureExample.vulpineTexture");
 
-    // VulpineTextBuffRef test(new VulpineTextBuff("../notes/loaderTest.txt"));
-    // Loader<ModelRef>::addInfos(test).loadFromInfos();
+    // Loader<MeshMaterial>::addInfos("ressources/basicPBR.vulpineMaterial");
+    // Loader<ObjectGroup>::addInfos("ressources/loaderTest.vulpineGroup");
+    // scene.add(Loader<ObjectGroup>::get("fox").copy());
 
-    Loader<MeshMaterial>::addInfos("ressources/basicPBR.vulpineMaterial");
-    Loader<ObjectGroup>::addInfos("ressources/loaderTest.vulpineGroup");
-    scene.add(Loader<ObjectGroup>::get("fox").copy());
+
+    NavGraphRef graph(new NavGraph(0));
+
+    graph->addNode(vec3(0, 0, 0));
+    graph->addNode(vec3(0.5, 0, 0));
+    graph->addNode(vec3(0, 0, 1));
+    graph->addNode(vec3(1, 0, 1));
+    graph->connectNodes(0, 1);
+    graph->connectNodes(0, 2);
+    graph->connectNodes(1, 3);
+    graph->connectNodes(2, 3);
+    graph->connectNodes(0, 3);
+    graph->print();
+
+    scene.add(NavGraphHelperRef(new NavGraphHelper(graph)));
+
 
     std::thread physicsThreads(&Game::physicsLoop, this);
     /* Main Loop */
