@@ -1,0 +1,12 @@
+lightsBecnhmark500
+:   pointLights
+    :   FFFF00 5 10 "0 1 0"
+    :   FFFF00 5 10 "0 1 0"
+    :   FFFF00 5 10 "0 1 0"
+    :   FFFF00 5 10 "0 1 0"
+    :   FFFF00 5 10 "0 1 0"
+    :   FFFF00 5 10 "0 1 0"
+    :   FFFF00 5 10 "0 1 0"
+    ;
+;
+

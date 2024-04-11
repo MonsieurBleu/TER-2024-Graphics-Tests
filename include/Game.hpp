@@ -4,6 +4,8 @@
 #include <Fonts.hpp>
 #include <FastUI.hpp>
 
+#include <Physics.hpp>
+
 #include <GameGlobals.hpp>
 class Game final : public App
 {
