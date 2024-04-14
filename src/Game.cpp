@@ -428,12 +428,6 @@ void Game::mainloop()
         PathHelperRef(new PathHelper(path, graph))
     );
 
-    auto capsule = CapsuleHelperRef(new CapsuleHelper(
-            vec3(0, 0, 0), vec3(1, 0, 0), 0.5, vec3(0, 1, 0)
-        ));
-
-    scene.add(capsule);
-
 
     scene.add(SphereHelperRef(new SphereHelper(vec3(1, 1, 0))));
 
@@ -452,12 +446,6 @@ void Game::mainloop()
 
         float time = globals.simulationTime.getElapsedTime();
         lights->state.setRotation(vec3(0, time*0.25, 0));
-
-        vec3 l(0, 1, 0);
-        vec3 r(1, 0, 0);
-        capsule->updateData(l*cos(time) + r*sin(time), l*cos(time + (float)PI) + r*sin(time + (float)PI), 0.25);
-
-
 
         /* UI & 2D Render */
         glEnable(GL_BLEND);
