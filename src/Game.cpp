@@ -23,7 +23,7 @@ void Game::init(int paramSample)
     App::init();
 
     // activateMainSceneBindlessTextures();
-    activateMainSceneClusteredLighting(ivec3(16, 9, 24), 5e3f);
+    activateMainSceneClusteredLighting(ivec3(16, 9, 24), 350);
 
     setIcon("ressources/icon.png");
 
@@ -343,50 +343,21 @@ void Game::mainloop()
 
     state = AppState::run;
 
-    for(auto f : std::filesystem::recursive_directory_iterator("ressources/vulpine/"))
-    {
-        if(f.is_directory()) continue;
-
-        char ext[1024];
-        char p[1024];
-
-        strcpy(ext, f.path().extension().c_str());
-        strcpy(p, f.path().c_str());
-
-        // std::cout << "'" << ext << "'\n";
-
-        if(!strcmp(ext, ".vulpineGroup"))
-            Loader<ObjectGroup>::addInfos(p);
-        else
-        if(!strcmp(ext, ".vulpineGroupRef"))
-            Loader<ObjectGroupRef>::addInfos(p);
-        else
-        if(!strcmp(ext, ".vulpineModel"))
-            Loader<MeshModel3D>::addInfos(p);
-        else
-        if(!strcmp(ext, ".vulpineMaterial"))
-            Loader<MeshMaterial>::addInfos(p);
-    }
-    /*
-        LB_1k_11 
-        LB_2048_9 
-        LB_16K_3 
-        LB_16K_10 
-        LB_512_13 
-        LB_256_15 
-        LB_256_10 
-        LB_4K_7 
-        LB_8K_5 
-    */
+    loadAllAssetsInfos("ressources/");
 
     // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark2048_9");
     // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark256_15");
+    // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark4096_7");
     auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark8192_5");
+    // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark16384_3");
+
+    // scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
 
     scene.add(lights);
+    
     scene.add(Loader<MeshModel3D>::get("LightRoom").copyWithSharedMesh());
 
-    lights->state.scaleScalar(0.09);
+    lights->state.scaleScalar(0.12);
     lights->setMenu(menu, U"Lights");
 
     helpers = newObjectGroup();
@@ -417,8 +388,9 @@ void Game::mainloop()
 
         mainloopPreRenderRoutine();
 
-        float time = globals.simulationTime.getElapsedTime();
-        lights->state.setRotation(vec3(0, time, time));
+        float time = globals.simulationTime.getElapsedTime()*0.1;
+        // lights->state.setRotation(vec3(0, time, time));
+        lights->state.setRotation(vec3(0, time, 0));
 
         /* UI & 2D Render */
         glEnable(GL_BLEND);
@@ -427,7 +399,6 @@ void Game::mainloop()
         scene2D.updateAllObjects();
         fuiBatch->batch();
         screenBuffer2D.activate();
-        fuiBatch->draw();
         scene2D.cull();
         scene2D.draw();
         screenBuffer2D.deactivate();
