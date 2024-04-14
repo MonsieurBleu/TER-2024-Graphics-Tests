@@ -1,0 +1,16 @@
+LightRoom
+:   mesh LightRoom
+    :   ressources/vulpine/data/LightRoom.vulpineMesh
+    ;
+:   material
+    |   basicPBR
+:   texture 0 PorcelainCE
+    :   source ressources/vulpine/textures/PorcelainCE.ktx2
+    ;
+:   texture 1 PorcelainNRM
+    :   source ressources/vulpine/textures/PorcelainNRM.ktx2
+    ;
+:   state 
+    :   position "-7 0 -7"
+    ;
+;

@@ -36,7 +36,7 @@ fox
 :   groups 
     :   foxLights
         :   pointLights
-            :   FFFFFF 5 10 "0 1 0"
+            :   FFFF00 5 10 "0 1 0"
             :   00FF00 3 2  "0 2 2"
             ;
         ;

@@ -14,6 +14,7 @@
 #include <Skeleton.hpp>
 
 #include <AssetManager.hpp>
+#include <filesystem>
 
 Game::Game(GLFWwindow *window) : App(window) {}
 
@@ -227,9 +228,7 @@ void Game::physicsLoop()
     {
         physicsTicks.start();
 
-        physicsMutex.lock();
-        physicsEngine.update(1.f / physicsTicks.freq);
-        physicsMutex.unlock();
+        physicsEngine.tick(1.f / physicsTicks.freq);
 
         // BenchTimer timer;
         // timer.start();
@@ -253,20 +252,20 @@ void Game::mainloop()
     skybox->state.scaleScalar(1E6);
     scene.add(skybox);
 
-    ModelRef floor = newModel(GameGlobals::PBR);
-    floor->loadFromFolder("ressources/models/cube/");
+    // ModelRef floor = newModel(GameGlobals::PBR);
+    // floor->loadFromFolder("ressources/models/cube/");
 
-    int gridSize = 10;
-    int gridScale = 7.5;
-    for (int i = -gridSize; i <= gridSize; i++)
-        for (int j = -gridSize; j <= gridSize; j++)
-        {
-            ModelRef f = floor->copyWithSharedMesh();
-            f->state
-                .setScale(vec3(gridScale, 0.25f, gridScale))
-                .setPosition(vec3(i * gridScale * 2.0, -2, j * gridScale * 2.0));
-            scene.add(f);
-        }
+    // int gridSize = 10;
+    // int gridScale = 7.5;
+    // for (int i = -gridSize; i <= gridSize; i++)
+    //     for (int j = -gridSize; j <= gridSize; j++)
+    //     {
+    //         ModelRef f = floor->copyWithSharedMesh();
+    //         f->state
+    //             .setScale(vec3(gridScale, 0.25f, gridScale))
+    //             .setPosition(vec3(i * gridScale * 2.0, -2, j * gridScale * 2.0));
+    //         scene.add(f);
+    //     }
 
     // int forestSize = 14;
     // float treeScale = 0.20;
@@ -321,30 +320,6 @@ void Game::mainloop()
     sun->activateShadows();
     scene.add(sun);
 
-    ObjectGroupRef lights = newObjectGroup();
-    helpers = newObjectGroup();
-    int nbLights = 0;
-    for(int i = 0; i < nbLights; i++)
-    {
-        ScenePointLight l = newPointLight();
-
-        float phi = (float)(std::rand()%3141592)/(PI);
-        const float maxDist = 300.f;
-        float dist = (float)(std::rand()%(int)1e5)/1e5f;
-        dist = pow(dist, 0.5f)*maxDist;
-
-        l->setIntensity(5.f)
-            .setRadius(5.0)
-            .setColor(hsv2rgb(vec3((float)(std::rand()%256)/256.f, 1.0, 1.f)))
-            .setPosition(dist*PhiThetaToDir(vec2(phi, 0)) + vec3(0, l->radius()*0.25, 0));
-
-        lights->add(l);
-        helpers->add(PointLightHelperRef(new PointLightHelper(l)));
-    }
-    scene.add(lights);
-    helpers->state.hide = ModelStateHideStatus::HIDE;
-    scene.add(helpers);
-
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_DEPTH_TEST);
     glLineWidth(1.0);
@@ -367,70 +342,68 @@ void Game::mainloop()
 
 
     state = AppState::run;
-    
+
+    for(auto f : std::filesystem::recursive_directory_iterator("ressources/vulpine/"))
+    {
+        if(f.is_directory()) continue;
+
+        char ext[1024];
+        char p[1024];
+
+        strcpy(ext, f.path().extension().c_str());
+        strcpy(p, f.path().c_str());
+
+        // std::cout << "'" << ext << "'\n";
+
+        if(!strcmp(ext, ".vulpineGroup"))
+            Loader<ObjectGroup>::addInfos(p);
+        else
+        if(!strcmp(ext, ".vulpineGroupRef"))
+            Loader<ObjectGroupRef>::addInfos(p);
+        else
+        if(!strcmp(ext, ".vulpineModel"))
+            Loader<MeshModel3D>::addInfos(p);
+        else
+        if(!strcmp(ext, ".vulpineMaterial"))
+            Loader<MeshMaterial>::addInfos(p);
+    }
+    /*
+        LB_1k_11 
+        LB_2048_9 
+        LB_16K_3 
+        LB_16K_10 
+        LB_512_13 
+        LB_256_15 
+        LB_256_10 
+        LB_4K_7 
+        LB_8K_5 
+    */
+
+    // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark2048_9");
+    // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark256_15");
+    auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark8192_5");
+
+    scene.add(lights);
+    scene.add(Loader<MeshModel3D>::get("LightRoom").copyWithSharedMesh());
+
+    lights->state.scaleScalar(0.09);
+    lights->setMenu(menu, U"Lights");
+
+    helpers = newObjectGroup();
+
+    for(auto &i : scene.getLights())
+    {
+        helpers->add(PointLightHelperRef(new PointLightHelper(std::static_pointer_cast<PointLight>(i))));
+    }
+
+    helpers->state.hide = ModelStateHideStatus::HIDE;
+    scene.add(helpers);
 
     glLineWidth(5.0);
- 
     menu.batch();
     scene2D.updateAllObjects();
     fuiBatch->batch();
     scene2D.add(menu);
-
-
-    // Loader<MeshMaterial>::addInfos("ressources/basicPBR.vulpineMaterial");
-    // Loader<ObjectGroup>::addInfos("ressources/loaderTest.vulpineGroup");
-    // scene.add(Loader<ObjectGroup>::get("fox").copy());
-
-
-    NavGraphRef graph(new NavGraph(0));
-    graph->addNode(vec3(0, 0, 0));
-    graph->addNode(vec3(1, 0, 0));
-    graph->addNode(vec3(1, 0, -1));
-    graph->addNode(vec3(4, 0, -1));
-    graph->addNode(vec3(4, 0, 0));
-    graph->addNode(vec3(2, 0, 0));
-    graph->addNode(vec3(2, 0, 1));
-    graph->addNode(vec3(4, 0, 1));
-    graph->addNode(vec3(0, 0, 2));
-    graph->addNode(vec3(1, 0, 2));
-    graph->addNode(vec3(1, 0, 3));
-    graph->addNode(vec3(2, 0, 3));
-    graph->addNode(vec3(2, 0, 2));
-    graph->addNode(vec3(3, 0, 3));
-    graph->addNode(vec3(3, 0, 2));
-    graph->addNode(vec3(4, 0, 3));
-    graph->addNode(vec3(4, 0, 2));
-    graph->connectNodes(0, 1);
-    graph->connectNodes(1, 2);
-    graph->connectNodes(2, 3);
-    graph->connectNodes(3, 4);
-    graph->connectNodes(4, 5);
-    graph->connectNodes(4, 7);
-    graph->connectNodes(5, 6);
-    graph->connectNodes(6, 7);
-    graph->connectNodes(0, 8);
-    graph->connectNodes(8, 9);
-    graph->connectNodes(9, 10);
-    graph->connectNodes(10, 11);
-    graph->connectNodes(11, 12);
-    graph->connectNodes(12, 14);
-    graph->connectNodes(13, 14);
-    graph->connectNodes(13, 15);
-    graph->connectNodes(16, 15);
-    graph->connectNodes(16, 7);
-
-    scene.add(NavGraphHelperRef(new NavGraphHelper(graph)));
-
-    Path path(0, 16);
-    graph->shortestPath(0, 16, path);
-
-    scene.add(
-        PathHelperRef(new PathHelper(path, graph))
-    );
-
-
-    scene.add(SphereHelperRef(new SphereHelper(vec3(1, 1, 0))));
-
     std::thread physicsThreads(&Game::physicsLoop, this);
     /* Main Loop */
     while (state != AppState::quit)
@@ -445,7 +418,7 @@ void Game::mainloop()
         mainloopPreRenderRoutine();
 
         float time = globals.simulationTime.getElapsedTime();
-        lights->state.setRotation(vec3(0, time*0.25, 0));
+        lights->state.setRotation(vec3(0, time, time));
 
         /* UI & 2D Render */
         glEnable(GL_BLEND);
