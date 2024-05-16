@@ -22,8 +22,26 @@ void Game::init(int paramSample)
 {
     App::init();
 
+    camera.init(radians(70.0f), globals.windowWidth(), globals.windowHeight(), 0.1f, 1E4f);
+    // camera.setMouseFollow(false);
+    // camera.setPosition(vec3(0, 1, 0));
+    // camera.setDirection(vec3(1, 0, 0));
+    auto myfile = std::fstream("saves/cameraState.bin", std::ios::in | std::ios::binary);
+    if(myfile)
+    {
+        CameraState buff;
+        myfile.read((char*)&buff, sizeof(CameraState));
+        myfile.close();
+        camera.setState(buff);
+    }
+
+    auto s = camera.getState();
+    s.nearPlane = 0.1;
+    camera.setState(s);
+
     // activateMainSceneBindlessTextures();
-    activateMainSceneClusteredLighting(ivec3(16, 9, 24), 350);
+    activateMainSceneClusteredLighting(ivec3(16, 9, 24), 18);
+    // activateMainSceneClusteredLighting(ivec3(4, 4, 4), 18);
 
     setIcon("ressources/icon.png");
 
@@ -38,19 +56,6 @@ void Game::init(int paramSample)
         globals.standartShaderUniform2D());
 
     finalProcessingStage.addUniform(ShaderUniform(Bloom.getIsEnableAddr(), 10));
-
-    camera.init(radians(70.0f), globals.windowWidth(), globals.windowHeight(), 0.1f, 1E4f);
-    // camera.setMouseFollow(false);
-    // camera.setPosition(vec3(0, 1, 0));
-    // camera.setDirection(vec3(1, 0, 0));
-    auto myfile = std::fstream("saves/cameraState.bin", std::ios::in | std::ios::binary);
-    if(myfile)
-    {
-        CameraState buff;
-        myfile.read((char*)&buff, sizeof(CameraState));
-        myfile.close();
-        camera.setState(buff);
-    }
 
 
     /* Loading 3D Materials */
@@ -141,6 +146,8 @@ void Game::init(int paramSample)
     fuiBatch->setMaterial(defaultSUIMaterial);
     fuiBatch->state.position.z = 0.0;
     fuiBatch->state.forceUpdate();
+
+    loadAllAssetsInfos("ressources/");
 
     /* VSYNC and fps limit */
     globals.fpsLimiter.activate();
@@ -260,7 +267,7 @@ void Game::mainloop()
     // for (int i = -gridSize; i <= gridSize; i++)
     //     for (int j = -gridSize; j <= gridSize; j++)
     //     {
-    //         ModelRef f = floor->copyWithSharedMesh();
+    //         ModelRef f = floor->copy();
     //         f->state
     //             .setScale(vec3(gridScale, 0.25f, gridScale))
     //             .setPosition(vec3(i * gridScale * 2.0, -2, j * gridScale * 2.0));
@@ -281,8 +288,8 @@ void Game::mainloop()
     //     for (int j = -forestSize; j < forestSize; j++)
     //     {
     //         ObjectGroupRef tree = newObjectGroup();
-    //         tree->add(trunk->copyWithSharedMesh());
-    //         ModelRef l = leaves->copyWithSharedMesh();
+    //         tree->add(trunk->copy());
+    //         ModelRef l = leaves->copy();
     //         l->noBackFaceCulling = true;
     //         tree->add(l);
     //         tree->state
@@ -351,11 +358,11 @@ void Game::mainloop()
     auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark8192_5");
     // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark16384_3");
 
-    // scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
+    scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
 
     scene.add(lights);
     
-    scene.add(Loader<MeshModel3D>::get("LightRoom").copyWithSharedMesh());
+    scene.add(Loader<MeshModel3D>::get("LightRoom").copy());
 
     lights->state.scaleScalar(0.12);
     lights->setMenu(menu, U"Lights");
