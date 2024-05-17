@@ -1,0 +1,28 @@
+
+f = 1.42814910448
+a = 0.5625
+Znear = 0.1
+
+GLM_FUNC_QUALIFIER static mat<4, 4, T, Q> call(mat<4, 4, T, Q> const& m)
+{
+    vec<4, T, Q> (f*Znear, 0, 0, 0);
+    vec<4, T, Q> (0, (Znear * f/aspectWbyH), 0, 0);
+    vec<4, T, Q> (0, 0, 0, (-f*f/aspectWbyH));
+    vec<4, T, Q> (0, 0, (Znear*f*f/aspectWbyH), 0);
+
+    vec<4, T, Q> SignA(+1, -1, +1, -1);
+    vec<4, T, Q> SignB(-1, +1, -1, +1);
+    mat<4, 4, T, Q> Inverse(Inv0 * SignA, Inv1 * SignB, Inv2 * SignA, Inv3 * SignB);
+
+
+    vec<4, T, Q> Row0(f*Znear, 0, 0, 0);
+
+    vec<4, T, Q> Dot0(m[0] * Row0);
+    T Dot1 = (Dot0.x + Dot0.y) + (Dot0.z + Dot0.w);
+
+    T OneOverDeterminant = static_cast<T>(1) / Dot1;
+
+    return Inverse * OneOverDeterminant;
+}
+
+vec3(37.577805, 18.788900, -34.500000)

@@ -355,10 +355,10 @@ void Game::mainloop()
     // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark2048_9");
     // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark256_15");
     // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark4096_7");
-    auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark8192_5");
-    // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark16384_3");
+    // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark8192_5");
+    auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark16384_3");
 
-    scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
+    // scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
 
     scene.add(lights);
     
@@ -367,15 +367,13 @@ void Game::mainloop()
     lights->state.scaleScalar(0.12);
     lights->setMenu(menu, U"Lights");
 
-    helpers = newObjectGroup();
-
-    for(auto &i : scene.getLights())
-    {
-        helpers->add(PointLightHelperRef(new PointLightHelper(std::static_pointer_cast<PointLight>(i))));
-    }
-
-    helpers->state.hide = ModelStateHideStatus::HIDE;
-    scene.add(helpers);
+    // helpers = newObjectGroup();
+    // for(auto &i : scene.getLights())
+    // {
+    //     helpers->add(PointLightHelperRef(new PointLightHelper(std::static_pointer_cast<PointLight>(i))));
+    // }
+    // helpers->state.hide = ModelStateHideStatus::HIDE;
+    // scene.add(helpers);
 
     glLineWidth(5.0);
     menu.batch();
@@ -396,7 +394,6 @@ void Game::mainloop()
         mainloopPreRenderRoutine();
 
         float time = globals.simulationTime.getElapsedTime()*0.1;
-        // lights->state.setRotation(vec3(0, time, time));
         lights->state.setRotation(vec3(0, time, 0));
 
         /* UI & 2D Render */
