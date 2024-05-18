@@ -26,3 +26,17 @@ GLM_FUNC_QUALIFIER static mat<4, 4, T, Q> call(mat<4, 4, T, Q> const& m)
 }
 
 vec3(37.577805, 18.788900, -34.500000)
+
+
+python3 graph.py "test, time, FrameTime : Clustered Optimized, FrameTime[1] : Foward" --file ../benchmarks/2048_9_C_opt.csv ../benchmarks/2048_9_F.csv 
+
+
+python3 graph.py "Optimized Clustered Rendering over multple light scenes, time, FrameTime : 256 radius 15, FrameTime[1] : 4096 radius 7, FrameTime[2] : 8192 radius 5, FrameTime[3] : 16384 radius 3, ylabel=frametime(ms), xlabel=time(s)" --file ../benchmarks/256_15_C_opt.csv ../benchmarks/4096_7_C_opt.csv ../benchmarks/8192_5_C_opt.csv ../benchmarks/16384_3_C_opt.csv
+
+
+
+python3 graph.py "Clustered VS Clustered Naive vs pure Foward with 256 lights, time, FrameTime : Clustered Foward, FrameTime[1] : Clustered Foward Naive, FrameTime[2] : Foward, ylabel=frametime(ms), xlabel=time(s)" --file ../benchmarks/256_15_C_opt.csv ../benchmarks/256_15_C.csv ../benchmarks/256_15_F.csv
+
+python3 graph.py "Clustered VS Clustered Naive vs pure Foward with 5 lights, time, FrameTime : Clustered Foward, FrameTime[1] : Clustered Foward Naive, FrameTime[2] : Foward, ylabel=frametime(ms), xlabel=time(s)" --file ../benchmarks/5_40_C_opt.csv ../benchmarks/5_40_C.csv ../benchmarks/5_40_F.csv
+
+python3 graph.py "Clustered VS Clustered Naive with 2048 lights, time, FrameTime : Clustered Foward, FrameTime[1] : Clustered Foward Naive, ylabel=frametime(ms), xlabel=time(s)" --file ../benchmarks/2048_9_C_opt.csv ../benchmarks/2048_9_C.csv

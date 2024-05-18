@@ -16,16 +16,27 @@
 #include <AssetManager.hpp>
 #include <filesystem>
 
+#include <Benchmark.hpp>
+
 Game::Game(GLFWwindow *window) : App(window) {}
+
+
+std::string lightsName = "8192_10";
+std::string techniqueName = "_C_opt";
+// std::string techniqueName = "_C";
+// std::string techniqueName = "_F";
+
+// auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark2048_9");
+// auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark256_15");
+// auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark4096_7");
+// auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark8192_5");
+// auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark16384_3");
 
 void Game::init(int paramSample)
 {
     App::init();
 
     camera.init(radians(70.0f), globals.windowWidth(), globals.windowHeight(), 0.1f, 1E4f);
-    // camera.setMouseFollow(false);
-    // camera.setPosition(vec3(0, 1, 0));
-    // camera.setDirection(vec3(1, 0, 0));
     auto myfile = std::fstream("saves/cameraState.bin", std::ios::in | std::ios::binary);
     if(myfile)
     {
@@ -36,12 +47,10 @@ void Game::init(int paramSample)
     }
 
     auto s = camera.getState();
-    s.nearPlane = 0.1;
+    s.nearPlane = 0.25;
     camera.setState(s);
 
-    // activateMainSceneBindlessTextures();
     activateMainSceneClusteredLighting(ivec3(16, 9, 24), 18);
-    // activateMainSceneClusteredLighting(ivec3(4, 4, 4), 18);
 
     setIcon("ressources/icon.png");
 
@@ -352,11 +361,11 @@ void Game::mainloop()
 
     loadAllAssetsInfos("ressources/");
 
-    // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark2048_9");
-    // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark256_15");
-    // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark4096_7");
-    // auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark8192_5");
-    auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark16384_3");
+
+    auto &lights = Loader<ObjectGroupRef>::get("lightsBecnhmark" + lightsName);
+
+    
+
 
     // scene.add(ClusteredFrustumHelperRef(new ClusteredFrustumHelper(camera)));
 
@@ -374,6 +383,18 @@ void Game::mainloop()
     // }
     // helpers->state.hide = ModelStateHideStatus::HIDE;
     // scene.add(helpers);
+
+    // Benchmark bench;
+    // bench.addMetric("FrameTime", EVERY_100_MILLISECONDS, [](){
+    //     return (double)globals.appTime.getLastAvg().count();
+    // });
+
+    Benchmark bench;
+    bench.addMetric("FrameTime", EVERY_TICK, [](){
+        return (double)globals.appTime.getDeltaMS();
+    });
+
+    globals.fpsLimiter.deactivate();
 
     glLineWidth(5.0);
     menu.batch();
@@ -393,19 +414,18 @@ void Game::mainloop()
 
         mainloopPreRenderRoutine();
 
-        float time = globals.simulationTime.getElapsedTime()*0.1;
-        lights->state.setRotation(vec3(0, time, 0));
+        // float time = globals.simulationTime.getElapsedTime()*0.1;
+        // lights->state.setRotation(vec3(0, time, 0));
 
         /* UI & 2D Render */
-        glEnable(GL_BLEND);
-        glEnable(GL_FRAMEBUFFER_SRGB);
-
-        scene2D.updateAllObjects();
-        fuiBatch->batch();
-        screenBuffer2D.activate();
-        scene2D.cull();
-        scene2D.draw();
-        screenBuffer2D.deactivate();
+        // glEnable(GL_BLEND);
+        // glEnable(GL_FRAMEBUFFER_SRGB);
+        // scene2D.updateAllObjects();
+        // fuiBatch->batch();
+        // screenBuffer2D.activate();
+        // scene2D.cull();
+        // scene2D.draw();
+        // screenBuffer2D.deactivate();
 
         /* 3D Pre-Render */
         glDisable(GL_FRAMEBUFFER_SRGB);
@@ -447,7 +467,20 @@ void Game::mainloop()
 
         /* Main loop End */
         mainloopEndRoutine();
-    }
 
+        if(globals.appTime.getElapsedTime() > 2.f) bench.tick();
+
+        static bool benchSaved = false;
+        if(!benchSaved && globals.appTime.getElapsedTime() > 5.f)
+        {
+            std::string filename = "../benchmarks/" + lightsName + techniqueName + ".csv";
+            bench.saveCSV(filename);
+            benchSaved = true;
+            std::cout << TERMINAL_OK << "Done saving benchmark file " << filename << "\n";
+        }
+        
+    }
     physicsThreads.join();
+
+    
 }
