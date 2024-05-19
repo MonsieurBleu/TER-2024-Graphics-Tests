@@ -21,7 +21,12 @@
 Game::Game(GLFWwindow *window) : App(window) {}
 
 
+// std::string lightsName = "5_40";
+// std::string lightsName = "256_15";
+// std::string lightsName = "2048_9";
 std::string lightsName = "8192_10";
+// std::string lightsName = "16384_3";
+
 std::string techniqueName = "_C_opt";
 // std::string techniqueName = "_C";
 // std::string techniqueName = "_F";
@@ -244,7 +249,7 @@ void Game::physicsLoop()
     {
         physicsTicks.start();
 
-        physicsEngine.tick(1.f / physicsTicks.freq);
+        // physicsEngine.tick(1.f / physicsTicks.freq);
 
         // BenchTimer timer;
         // timer.start();
@@ -414,18 +419,18 @@ void Game::mainloop()
 
         mainloopPreRenderRoutine();
 
-        // float time = globals.simulationTime.getElapsedTime()*0.1;
-        // lights->state.setRotation(vec3(0, time, 0));
+        float time = globals.simulationTime.getElapsedTime()*0.1;
+        lights->state.setRotation(vec3(0, time, 0));
 
         /* UI & 2D Render */
-        // glEnable(GL_BLEND);
-        // glEnable(GL_FRAMEBUFFER_SRGB);
-        // scene2D.updateAllObjects();
-        // fuiBatch->batch();
-        // screenBuffer2D.activate();
-        // scene2D.cull();
-        // scene2D.draw();
-        // screenBuffer2D.deactivate();
+        glEnable(GL_BLEND);
+        glEnable(GL_FRAMEBUFFER_SRGB);
+        scene2D.updateAllObjects();
+        fuiBatch->batch();
+        screenBuffer2D.activate();
+        scene2D.cull();
+        scene2D.draw();
+        screenBuffer2D.deactivate();
 
         /* 3D Pre-Render */
         glDisable(GL_FRAMEBUFFER_SRGB);
@@ -470,17 +475,15 @@ void Game::mainloop()
 
         if(globals.appTime.getElapsedTime() > 2.f) bench.tick();
 
-        static bool benchSaved = false;
-        if(!benchSaved && globals.appTime.getElapsedTime() > 5.f)
-        {
-            std::string filename = "../benchmarks/" + lightsName + techniqueName + ".csv";
-            bench.saveCSV(filename);
-            benchSaved = true;
-            std::cout << TERMINAL_OK << "Done saving benchmark file " << filename << "\n";
-        }
+        // static bool benchSaved = false;
+        // if(!benchSaved && globals.appTime.getElapsedTime() > 5.f)
+        // {
+        //     std::string filename = "../benchmarks/" + lightsName + techniqueName + ".csv";
+        //     bench.saveCSV(filename);
+        //     benchSaved = true;
+        //     std::cout << TERMINAL_OK << "Done saving benchmark file " << filename << "\n";
+        // }
         
     }
     physicsThreads.join();
-
-    
 }
